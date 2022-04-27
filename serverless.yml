@@ -1,0 +1,59 @@
+service: factor-investing
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8  
+  environment:
+    ${file(./serverless/environment.yml)}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 's3:ListBucket'
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: "arn:aws:s3:::${file(./serverless/environment.yml):S3_BUCKET_NAME}/*" 
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+            - lambda:InvokeAsync
+          Resource: "*"
+
+functions:
+  factor-investing-computation:
+    handler: factor_investing.lambda_handler
+    memorySize: 1024 # optional, in MB, default is 1024
+    timeout: 900    
+    events:
+      # every Monday at 03:15 AM
+      - schedule: cron(15 3 ? * MON *)
+
+
+resources:
+  Resources:
+    UploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${file(./serverless/environment.yml):S3_BUCKET_NAME}
+        AccessControl: Private
+        CorsConfiguration:
+          CorsRules:
+          - AllowedMethods:
+            - GET
+            - PUT
+            - POST
+            - HEAD
+            AllowedOrigins:
+            - "*"
+            AllowedHeaders:
+            - "*"    
+  
+
+plugins:
+  - serverless-python-requirements
+	
+custom:
+  pythonRequirements:
+    dockerizePip: true
