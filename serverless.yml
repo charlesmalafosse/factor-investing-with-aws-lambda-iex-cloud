@@ -27,8 +27,8 @@ functions:
     memorySize: 1024 # optional, in MB, default is 1024
     timeout: 900    
     events:
-      # every Monday at 03:15 AM
-      - schedule: cron(15 3 ? * MON *)
+      # every Month, on 1st day at 01:00 AM
+      - schedule: cron(0 0 0 1 * *)
 
 
 resources:
