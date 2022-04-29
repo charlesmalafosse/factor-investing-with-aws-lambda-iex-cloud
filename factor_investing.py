@@ -7,6 +7,7 @@ from time import sleep
 import csv
 import math
 import logging
+import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -239,11 +240,11 @@ def lambda_handler(event, context):
     df_bot_basket = df_factors.sort_values("FINAL_SCORE")[:100]
     
     df_top_basket.to_csv("/tmp/" + ENV + "df_top_basket.csv")
-    s3_resource.meta.client.upload_file("/tmp/" + ENV + "df_top_basket.csv", S3_BUCKET_NAME, ENV + "df_top_basket.csv")
+    s3_resource.meta.client.upload_file("/tmp/" + ENV + "df_top_basket.csv", S3_BUCKET_NAME, ENV + "-" + datetime.datetime.now().strftime("%Y%m%d") + "-" + "df_top_basket.csv")
     df_bot_basket.to_csv("/tmp/" + ENV + "df_bot_basket.csv")
-    s3_resource.meta.client.upload_file("/tmp/" + ENV + "df_bot_basket.csv", S3_BUCKET_NAME, ENV + "df_bot_basket.csv")
+    s3_resource.meta.client.upload_file("/tmp/" + ENV + "df_bot_basket.csv", S3_BUCKET_NAME, ENV + "-" + datetime.datetime.now().strftime("%Y%m%d") + "-" + "df_bot_basket.csv")
     df_factors.to_csv("/tmp/" + ENV + "df_factors.csv")
-    s3_resource.meta.client.upload_file("/tmp/" + ENV + "df_factors.csv", S3_BUCKET_NAME, ENV + "df_factors.csv")
+    s3_resource.meta.client.upload_file("/tmp/" + ENV + "df_factors.csv", S3_BUCKET_NAME, ENV + "-" + datetime.datetime.now().strftime("%Y%m%d") + "-" + "df_factors.csv")
 
 
     body = {
