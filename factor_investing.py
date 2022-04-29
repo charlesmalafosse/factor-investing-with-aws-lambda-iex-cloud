@@ -14,11 +14,12 @@ logger.setLevel(logging.INFO)
 
 s3_resource = boto3.resource('s3')
 
-PUBLISHABLE = os.environ["PUBLISHABLE"] # "Tpk_16b69a439ed1470884e60e12c80cdabb"
+PUBLISHABLE = os.environ["PUBLISHABLE"]
 S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
 ENV = os.environ["ENVIRONMENT"] # "PRODUCTION" or "DEV"
 
-
+logging.getLogger("boto3").setLevel(logging.WARNING)
+logging.getLogger("botocore").setLevel(logging.WARNING)
 
 def compute_rank_zscore(df, field, is_smaller_better):
     
