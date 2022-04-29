@@ -16,10 +16,8 @@ s3_resource = boto3.resource('s3')
 
 PUBLISHABLE = os.environ["PUBLISHABLE"]
 S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
-ENV = os.environ["ENVIRONMENT"] # "PRODUCTION" or "DEV"
+ENV = os.environ["ENVIRONMENT"] # "PRODUCTION" or "STAGING" or "DEV"
 
-logging.getLogger("boto3").setLevel(logging.WARNING)
-logging.getLogger("botocore").setLevel(logging.WARNING)
 
 def compute_rank_zscore(df, field, is_smaller_better):
     
@@ -47,9 +45,9 @@ def cap_zscores(x):
 def lambda_handler(event, context):
     sleep_time = 0.1
     base_url = "https://sandbox.iexapis.com"
-    if ENV == "PRODUCTION":
+    if ENV.upper() == "PRODUCTION":
         # IEX api limit requests to 100 per second per IP measured in milliseconds, so no more than 1 request per 10 milliseconds. Sandbox Testing has a request limit of 10 requests per second measured in milliseconds. # https://iexcloud.io/docs/api/
-        sleep_time = 0.01
+        sleep_time = 0.001 # IEX Cloud call take around 100ms and allow burst. 1ms wait time should be enough
         base_url = "https://cloud.iexapis.com"
 
     #############################################################################################
@@ -75,9 +73,10 @@ def lambda_handler(event, context):
     etf_des = csv_res[:8]
     etf_holdings = csv_res[8:]
     df_etf_holdings = pd.DataFrame.from_records(etf_holdings[1:-1], columns=etf_holdings[0])
-    if ENV != "PRODUCTION":
+    if ENV.upper() != "PRODUCTION":
         df_etf_holdings = df_etf_holdings[:100]
-
+    else:
+        df_etf_holdings = df_etf_holdings[:1500]
     ######################################################################################
     ## FILTER IEX UNIVERSE TO KEEP ONLY STOCKS FROM THE S&P TOTAL US INDEX
     ######################################################################################
