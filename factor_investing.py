@@ -76,7 +76,7 @@ def lambda_handler(event, context):
     if ENV.upper() != "PRODUCTION":
         df_etf_holdings = df_etf_holdings[:100]
     else:
-        df_etf_holdings = df_etf_holdings[:1500]
+        df_etf_holdings = df_etf_holdings[:500]
     ######################################################################################
     ## FILTER IEX UNIVERSE TO KEEP ONLY STOCKS FROM THE S&P TOTAL US INDEX
     ######################################################################################
